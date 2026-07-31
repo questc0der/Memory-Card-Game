@@ -1,5 +1,5 @@
 import "../App.css";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const POKEMON_THEMES = [
   {
@@ -255,22 +255,22 @@ export default function Cards() {
     ? Math.min(100, Math.floor((seenCards.length / goalUnique) * 100))
     : 0;
 
-  function trackAnalytics(type, payload = {}) {
+  const trackAnalytics = useCallback((type, payload = {}) => {
     const event = {
       type,
       timestamp: Date.now(),
       payload,
     };
     setAnalytics((prev) => [event, ...prev].slice(0, 60));
-  }
+  }, []);
 
-  function unlockAchievement(id) {
+  const unlockAchievement = useCallback((id) => {
     if (achievements.includes(id)) {
       return;
     }
     setAchievements((prev) => [...prev, id]);
     setStatus({ type: "success", text: `🏆 Achievement unlocked: ${ACHIEVEMENTS[id]}` });
-  }
+  }, [achievements]);
 
   function assignSpecials(cards, currentScore) {
     const nextCards = cards.map((card) => ({ ...card, special: null }));
@@ -330,7 +330,7 @@ export default function Cards() {
       .filter((item) => Boolean(item.url));
   }
 
-  function saveRun(bestKey, finalScore, reason, win) {
+  const saveRun = useCallback((bestKey, finalScore, reason, win) => {
     const durationSeconds = sessionStart ? Math.floor((Date.now() - sessionStart) / 1000) : 0;
     const prevBest = bestScores[bestKey] ?? 0;
 
@@ -365,9 +365,9 @@ export default function Cards() {
       daily: isDaily,
       win,
     });
-  }
+  }, [sessionStart, bestScores, mode, difficulty, currentTheme.name, isDaily, trackAnalytics]);
 
-  function endGame(reasonLabel, reasonCode, forceWin = false, finalScore = score, finalSeen = seenCards.length) {
+  const endGame = useCallback((reasonLabel, reasonCode, forceWin = false, finalScore = score, finalSeen = seenCards.length) => {
     const won = forceWin || finalSeen >= goalUnique;
     const bestKey = isDaily ? `daily-${dailyConfig.dayKey}` : `${difficulty}-${mode}`;
 
@@ -401,7 +401,19 @@ export default function Cards() {
         ? "🎉 Great run! Try harder settings or daily mode next."
         : `Run ended: ${reasonLabel}.`,
     });
-  }
+  }, [
+    score,
+    seenCards.length,
+    goalUnique,
+    isDaily,
+    dailyConfig.dayKey,
+    difficulty,
+    mode,
+    mistakes,
+    bestScores,
+    saveRun,
+    unlockAchievement,
+  ]);
 
   async function startGame(dailyMode = false) {
     setLoading(true);
