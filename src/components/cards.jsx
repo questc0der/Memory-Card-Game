@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 export default function Cards() {
   const [Image, setImage] = useState([]);
   const [fetchData, setFetchData] = useState(true);
-  const [names, setNames] = useState([]);
+  const [, setNames] = useState([]);
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
   const [status, setStatus] = useState({
