@@ -4,8 +4,13 @@ import { useState, useEffect } from "react";
 export default function Cards() {
   const [Image, setImage] = useState([]);
   const [fetchData, setFetchData] = useState(true);
-  const [names, setNames] = useState([]);
+  const [, setNames] = useState([]);
   const [score, setScore] = useState(0);
+  const [bestScore, setBestScore] = useState(0);
+  const [status, setStatus] = useState({
+    type: "neutral",
+    text: "Pick a card. Don’t click the same Pokémon twice!",
+  });
 
   useEffect(() => {
     if (!fetchData) {
@@ -64,19 +69,29 @@ export default function Cards() {
 
   function handleClick(e) {
     const name = e.target.getAttribute("data-name");
+    if (!name) {
+      return;
+    }
 
     setNames((prevNames) => {
-      const updatedNames = [...prevNames, name];
-      const result = updatedNames.filter(
-        (name, index) => updatedNames.indexOf(name) !== index
-      );
-
-      result.length === 1 ? console.log("game over") : setScore(score + 1);
-      if (result.length === 1) {
+      if (prevNames.includes(name)) {
+        setBestScore((prevBest) => Math.max(prevBest, prevNames.length));
         setScore(0);
-        setNames([]);
+        setStatus({
+          type: "loss",
+          text: `💥 You picked ${name} twice. Streak reset — try again!`,
+        });
+        return [];
       }
-      return updatedNames;
+
+      const nextScore = prevNames.length + 1;
+      setScore(nextScore);
+      setBestScore((prevBest) => Math.max(prevBest, nextScore));
+      setStatus({
+        type: "success",
+        text: `🔥 Nice! Current streak: ${nextScore}`,
+      });
+      return [...prevNames, name];
     });
     setFetchData(true);
   }
@@ -85,7 +100,11 @@ export default function Cards() {
     <>
       <div className="container">
         <h1>MATCH CARDS</h1>
-        <p>Score: {score}</p>
+        <div className="scoreboard">
+          <p>Score: {score}</p>
+          <p>Best: {bestScore}</p>
+        </div>
+        <p className={`status_message ${status.type}`}>{status.text}</p>
         <div className="card_container">
           {Image.slice(0, 12).map((card, index) => (
             <div key={index} className="cards" onClick={handleClick}>

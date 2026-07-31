@@ -14,6 +14,39 @@ body {
   gap: 1em;
 }
 
+.container {
+  text-align: center;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: center;
+  gap: 1.5em;
+}
+
+.status_message {
+  margin: 0 auto 1em;
+  padding: 0.65em 1em;
+  border-radius: 0.6em;
+  width: fit-content;
+  max-width: 90%;
+  font-weight: 600;
+}
+
+.status_message.neutral {
+  background-color: #2d2d2d;
+}
+
+.status_message.success {
+  background-color: #0f5132;
+  color: #d1e7dd;
+}
+
+.status_message.loss {
+  background-color: #842029;
+  color: #f8d7da;
+}
+
 .cards {
   width: 18.7em;
   height: 18.7em;
@@ -50,6 +83,15 @@ img {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+  }
+
+  .scoreboard {
+    gap: 1em;
+  }
+
+  .status_message {
+    font-size: 0.9rem;
+    padding: 0.5em 0.75em;
   }
 
   img {
